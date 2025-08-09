@@ -1,77 +1,85 @@
-import { useState } from "react";
+import { useDroppable } from "@dnd-kit/core";
 
 interface ItemData {
   id: string;
-  color: string; // e.g. red - use tailwind variants later
-  shape: string; // circle, triangle, square atm
+  color: string;
+  shape: string;
 }
 
-const DEFAULT_INITIAL_ITEM_DATA: ItemData[] = [
-  {
-    id: "1",
-    color: "red",
-    shape: "circle",
-  },
-];
 
 function renderShape(shape: string, color: string) {
+  const bgColor = `bg-${color}-500`;
+  
   switch (shape) {
     case "circle":
-      return <div className={`w-10 h-10 rounded-full bg-${color}-500`}></div>;
-    case "triangle":
-      return <div className={`w-10 h-10 bg-${color}-500`}></div>; // TODO: actually do
+      return <div className={`w-8 h-8 rounded-full ${bgColor}`}></div>;
     case "square":
-      return <div className={`w-10 h-10 bg-${color}-500`}></div>;
+      return <div className={`w-8 h-8 ${bgColor}`}></div>;
     default:
-      return <div className={`w-10 h-10 bg-${color}-500`}></div>;
+      return <div className={`w-8 h-8 ${bgColor}`}></div>;
   }
+}
+
+function GridCell({ 
+  index, 
+  item, 
+  highlighted, 
+  handleItemClick 
+}: {
+  index: number;
+  item: ItemData | null;
+  highlighted: boolean;
+  handleItemClick?: (item: ItemData) => void;
+}) {
+  const { setNodeRef } = useDroppable({ id: `cell-${index}` });
+  
+  return (
+    <div
+      ref={setNodeRef}
+      className={`aspect-square w-full rounded-lg border border-neutral-600 relative flex items-center justify-center ${
+        highlighted ? "ring-2 ring-emerald-400" : ""
+      } ${item ? "bg-neutral-800" : "bg-neutral-700"}`}
+      onClick={() => item && handleItemClick?.(item)}
+    >
+      {item && renderShape(item.shape, item.color)}
+    </div>
+  );
 }
 
 export default function Grid({
   handleItemClick,
   initialItemData,
   dims,
-  customBackgroundMode,
+  highlightIndices,
 }: {
-  handleItemClick: (item: ItemData) => void;
-  initialItemData: ItemData[] | undefined;
-  dims: {
-    width: number;
-    height: number;
-  };
-  customBackgroundMode?: (item: ItemData) => React.ReactNode;
+  handleItemClick?: (item: ItemData) => void;
+  initialItemData?: ItemData[];
+  dims: { width: number; height: number };
+  highlightIndices?: number[];
 }) {
-  if (!initialItemData) {
-    return null;
-  }
+  const itemData = initialItemData ?? [];
 
-  const [itemData, setItemData] = useState(initialItemData);
+  const totalCells = dims.width * dims.height;
 
   return (
     <div
-      className={`grid grid-cols-${dims.width} gap-2 content-start h-[75vh]`} // TODO: this is not scalable
+      className="grid gap-2 content-start"
+      style={{ gridTemplateColumns: `repeat(${dims.width}, minmax(0, 1fr))` }}
     >
-      {itemData.map((item) => (
-        <div
-          key={item.id}
-          className={`aspect-square w-full rounded-lg ${
-            customBackgroundMode?.(item) ||
-            "bg-neutral-800 border border-neutral-700"
-          }`}
-          onClick={() => handleItemClick(item)}
-        >
-          {renderShape(item.shape, item.color)}
-        </div>
-      ))}
-      {itemData.length < dims.width * dims.height &&
-        Array.from({ length: dims.width * dims.height - itemData.length }).map(
-          (_, index) => (
-            <div
-              key={index}
-              className="aspect-square w-full rounded-lg bg-neutral-800 border border-neutral-700"
-            ></div>
-          )
-        )}
+      {Array.from({ length: totalCells }).map((_, index) => {
+        const item = index < itemData.length ? itemData[index] : null;
+        const highlighted = highlightIndices?.includes(index);
+
+        return (
+          <GridCell 
+            key={index} 
+            index={index} 
+            item={item} 
+            highlighted={highlighted || false}
+            handleItemClick={handleItemClick}
+          />
+        );
+      })}
     </div>
   );
 }
