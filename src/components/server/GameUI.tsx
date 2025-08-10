@@ -1,8 +1,8 @@
 import { DndContext } from "@dnd-kit/core";
 import type { DragEndEvent, DragOverEvent } from "@dnd-kit/core";
 import { useState, useEffect } from "react";
-import Grid from "./Grid";
-import PatternCard from "./PatternCard";
+import Grid from "../Grid";
+import PatternCard from "../PatternCard";
 
 const BOARD_DIMS = { width: 8, height: 8 };
 const PLAYER_COLORS = ["red", "green", "blue"];
@@ -84,7 +84,7 @@ export default function GameUI({ gameId, playerColor, playerId }: GameUIProps) {
     players: [],
   });
   const [isMyTurn, setIsMyTurn] = useState(false);
-const submitMove = async () => {
+  const submitMove = async () => {
     try {
       const response = await fetch("/api/game/move", {
         method: "POST",
@@ -112,15 +112,17 @@ const submitMove = async () => {
       `/api/game/events?gameId=${gameId}&playerId=${playerId}`
     );
 
-eventSource.onmessage = (event) => {
+    eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "gameUpdate") {
-        setGameState(prevState => ({
+        setGameState((prevState) => ({
           ...data.gameState,
           currentPlayer: data.currentPlayer,
-          grid: data.gameState.grid || prevState.grid
+          grid: data.gameState.grid || prevState.grid,
         }));
-        const canPlay = data.gameState.phase === "playing" && data.currentPlayer === playerColor;
+        const canPlay =
+          data.gameState.phase === "playing" &&
+          data.currentPlayer === playerColor;
         setIsMyTurn(canPlay);
       }
     };
@@ -187,7 +189,7 @@ eventSource.onmessage = (event) => {
     setHighlight([]);
   };
 
-const applyPattern = (indices: number[], isAdditive: boolean) => {
+  const applyPattern = (indices: number[], isAdditive: boolean) => {
     const newGrid = [...gameState.grid];
 
     indices.forEach((index) => {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ShapeDisplay from "./ShapeDisplay";
+import ShapeDisplay from "../ShapeDisplay";
 
 interface GameLobbyProps {
   onJoinGame: (gameId: string, playerColor: string, playerId?: string) => void;
@@ -12,7 +12,6 @@ function ColorSelector({
 }) {
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const COLORS = ["red", "green", "blue"];
-
 
   const toggleColor = (color: string) => {
     const newColors = selectedColors.includes(color)
@@ -184,7 +183,7 @@ export default function GameLobby({ onJoinGame }: GameLobbyProps) {
 
         <div className="flex space-x-8">
           <button
-            onClick={() => window.location.href = '/gamelocal'}
+            onClick={() => (window.location.href = "/gamelocal")}
             className="w-20 h-20 flex items-center justify-center rounded-lg bg-purple-600 hover:bg-purple-500 transition-colors"
           >
             <span className="material-symbols-outlined text-white text-5xl">
