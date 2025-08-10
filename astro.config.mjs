@@ -6,6 +6,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 import db from "@astrojs/db";
 
+import node from "@astrojs/node";
+
 // https://astro.build/config
 export default defineConfig({
   integrations: [react(), db()],
@@ -13,4 +15,8 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+
+  adapter: node({
+    mode: "standalone",
+  }),
 });
