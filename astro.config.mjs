@@ -10,7 +10,10 @@ import node from "@astrojs/node";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react(), db()],
+  integrations: [
+    react(),
+    // db()
+  ],
 
   vite: {
     plugins: [tailwindcss()],
